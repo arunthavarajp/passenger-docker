@@ -1,15 +1,20 @@
 # syntax=docker/dockerfile:1.4
-ARG ARCH
-ARG NAME
-FROM $NAME-base:latest-$ARCH
+
+FROM phusion/passenger-full:1.0.1
+
 MAINTAINER Phusion <info@phusion.nl>
 
-ADD . /pd_build
+ENV HOME /root
 
-ARG ARCH
-ARG http_proxy
-RUN --mount=type=cache,target=/build_cache \
-    /usr/bin/nice /pd_build/install_image.sh
+# Explicitly copy the install script
+ADD install_image.sh /pd_build/install_image.sh
+
+# Ensure the script is executable
+RUN chmod +x /pd_build/install_image.sh
+
+# Run the script using nice
+RUN ls -la /pd_build && cat /pd_build/install_image.sh
 
 CMD ["/sbin/my_init"]
 EXPOSE 80 443
+
